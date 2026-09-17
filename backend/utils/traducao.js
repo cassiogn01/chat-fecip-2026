@@ -68,15 +68,47 @@ async function traduzirTexto(texto, origem, destino) {
 
     throw new Error('Resposta de tradução sem campo translatedText');
   } catch (err) {
-    console.warn('[Tradutor] LibreTranslate (Docker) indisponível:', err.message);
+    // Se o Docker local falhar (como acontece na nuvem Render), tenta o servidor comunitário LibreTranslate na nuvem:
+    try {
+      const fallbackUrl = 'https://translate.disroot.org/translate';
+      const fbController = new AbortController();
+      const fbTimeout = setTimeout(() => fbController.abort(), 4000);
 
-    // Cenário B oficial da especificação:
-    // Se o LibreTranslate no Docker estiver offline ou indisponível,
-    // envia a mensagem original informando com aviso.
+      const fbResponse = await fetch(fallbackUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          q: texto,
+          source: src,
+          target: tgt,
+          format: 'text'
+        }),
+        signal: fbController.signal
+      });
+
+      clearTimeout(fbTimeout);
+
+      if (fbResponse.ok) {
+        const fbData = await fbResponse.json();
+        if (fbData && fbData.translatedText) {
+          return {
+            texto: fbData.translatedText,
+            traduzido: true,
+            origem: src,
+            destino: tgt
+          };
+        }
+      }
+    } catch (fbErr) {
+      console.warn('[Tradutor] Instância LibreTranslate nuvem também indisponível:', fbErr.message);
+    }
+
+    console.warn('[Tradutor] LibreTranslate indisponível:', err.message);
+
     return {
       texto: texto,
       traduzido: false,
-      aviso: 'Tradução indisponível (LibreTranslate offline). Inicie o Docker.'
+      aviso: 'Tradução indisponível (LibreTranslate offline).'
     };
   }
 }
