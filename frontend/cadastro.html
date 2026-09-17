@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+  <title>Cadastro — Chat com Tradução Simultânea</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/responsivo.css">
+</head>
+<body>
+  <header class="navbar">
+    <a href="/" class="brand">
+      <div class="brand-icon">💬</div>
+      <div>
+        <span class="brand-title">Chat Tradução</span>
+        <span class="brand-subtitle">FECIP 2026</span>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <a href="/login.html" class="nav-link">Já tenho conta (Login)</a>
+    </div>
+  </header>
+
+  <main class="main-content" style="max-width: 480px;">
+    <div class="card">
+      <h1 class="card-title">Criar Conta</h1>
+      <p class="card-subtitle">Salve seu nick e adicione amigos favoritos para conversas rápidas.</p>
+
+      <div id="alerta-sucesso" class="banner banner-success" style="display: none;"></div>
+      <div id="alerta-erro" class="banner banner-danger" style="display: none;"></div>
+
+      <form id="form-cadastro" onsubmit="return false;">
+        <!-- Nick (3-20 chars, alfanumérico + underline) -->
+        <div class="form-group">
+          <label class="form-label" for="cad-nick">Nome de Usuário (@nick)</label>
+          <input type="text" id="cad-nick" class="form-control" placeholder="ex: cassio ou @cassio" maxlength="20" required autofocus>
+          <span class="form-help">Entre 3 e 20 caracteres (apenas letras, números e _).</span>
+          <span id="erro-nick" class="error-msg"></span>
+        </div>
+
+        <!-- E-mail (RFC 5322 válido, até 100 chars) -->
+        <div class="form-group">
+          <label class="form-label" for="cad-email">E-mail</label>
+          <input type="email" id="cad-email" class="form-control" placeholder="seu@email.com" maxlength="100" required>
+          <span id="erro-email" class="error-msg"></span>
+        </div>
+
+        <!-- Senha (3-50 chars) -->
+        <div class="form-group">
+          <label class="form-label" for="cad-senha">Senha</label>
+          <input type="password" id="cad-senha" class="form-control" placeholder="Sua senha secreta" minlength="3" maxlength="50" required>
+          <span class="form-help">Entre 3 e 50 caracteres.</span>
+          <span id="erro-senha" class="error-msg"></span>
+        </div>
+
+        <!-- Idioma Padrão -->
+        <div class="form-group">
+          <label class="form-label" for="cad-idioma">Idioma Padrão</label>
+          <select id="cad-idioma" class="form-control">
+            <option value="pt-BR">🇧🇷 Português Brasileiro (pt-BR)</option>
+            <option value="en">🇺🇸 English (en)</option>
+            <option value="es">🇪🇸 Español (es)</option>
+          </select>
+        </div>
+
+        <button id="btn-cadastrar" type="submit" class="btn btn-primary btn-block" style="margin-top: 12px;">
+          Concluir Cadastro
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script src="/js/validacao.js"></script>
+  <script>
+    document.getElementById('form-cadastro').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nick = document.getElementById('cad-nick').value.trim();
+      const email = document.getElementById('cad-email').value.trim();
+      const senha = document.getElementById('cad-senha').value;
+      const idioma_padrao = document.getElementById('cad-idioma').value;
+
+      const erroNick = Validacao.validarNick(nick);
+      const erroEmail = Validacao.validarEmail(email);
+      const erroSenha = Validacao.validarSenha(senha);
+
+      document.getElementById('erro-nick').textContent = erroNick || '';
+      document.getElementById('erro-nick').className = erroNick ? 'error-msg active' : 'error-msg';
+      document.getElementById('erro-email').textContent = erroEmail || '';
+      document.getElementById('erro-email').className = erroEmail ? 'error-msg active' : 'error-msg';
+      document.getElementById('erro-senha').textContent = erroSenha || '';
+      document.getElementById('erro-senha').className = erroSenha ? 'error-msg active' : 'error-msg';
+
+      if (erroNick || erroEmail || erroSenha) return;
+
+      try {
+        const res = await fetch('/api/auth/cadastro', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nick, email, senha, idioma_padrao })
+        });
+        const data = await res.json();
+
+        if (!res.ok || data.erro) {
+          document.getElementById('alerta-erro').textContent = data.erro || 'Erro ao cadastrar.';
+          document.getElementById('alerta-erro').style.display = 'block';
+          document.getElementById('alerta-sucesso').style.display = 'none';
+        } else {
+          document.getElementById('alerta-sucesso').textContent = 'Cadastro realizado! Redirecionando...';
+          document.getElementById('alerta-sucesso').style.display = 'block';
+          document.getElementById('alerta-erro').style.display = 'none';
+          setTimeout(() => window.location.href = '/', 1200);
+        }
+      } catch (err) {
+        document.getElementById('alerta-erro').textContent = 'Falha de comunicação com o servidor.';
+        document.getElementById('alerta-erro').style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

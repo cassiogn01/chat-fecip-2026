@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+  <title>Chat com Tradução Simultânea — FECIP 2026</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/responsivo.css">
+</head>
+<body>
+  <header class="navbar">
+    <a href="/" class="brand">
+      <div class="brand-icon">💬</div>
+      <div>
+        <span class="brand-title">Chat Tradução</span>
+        <span class="brand-subtitle">FECIP 2026</span>
+      </div>
+    </a>
+    <div class="nav-actions" id="nav-auth-area">
+      <!-- Injetado dinamicamente via JS (Login/Cadastro ou Perfil) -->
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- Card Principal: Criar Sala Rápida -->
+    <div class="card" id="card-criar-sala">
+      <h1 class="card-title">Criar Sala de Conversa</h1>
+      <p class="card-subtitle">Chat 1x1 em tempo real com tradução automática. Sem histórico: "Entra, conversa, traduz, tchau".</p>
+
+      <div class="form-group">
+        <label class="form-label" for="meu-nome">Seu Nome ou Apelido</label>
+        <input type="text" id="meu-nome" class="form-control" placeholder="Ex: Cássio" maxlength="50">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="meu-idioma">Seu Idioma</label>
+        <select id="meu-idioma" class="form-control">
+          <option value="pt-BR">🇧🇷 Português Brasileiro (pt-BR)</option>
+          <option value="en">🇺🇸 English (en)</option>
+          <option value="es">🇪🇸 Español (es)</option>
+        </select>
+        <span class="form-help">Você digitará e lerá tudo neste idioma. O parceiro lerá no dele.</span>
+      </div>
+
+      <button id="btn-criar-sala" class="btn btn-primary btn-block">
+        Criar Sala Agora
+      </button>
+
+      <!-- Área do QR Code e Link (Aparece após T=2s e T=3s) -->
+      <div id="area-sala-pronta" class="room-share-card" style="display: none;">
+        <h3 style="font-size: 1.15rem; color: #0f172a; margin-bottom: 4px;">Sua sala está pronta!</h3>
+        <p style="font-size: 0.88rem; color: #64748b;">Mostre o QR Code para o convidado ler com a câmera ou envie o link:</p>
+
+        <div class="qr-box">
+          <img id="img-qrcode" src="" alt="QR Code de Acesso à Sala">
+        </div>
+
+        <div class="link-copy-group">
+          <input type="text" id="input-link-sala" class="form-control" readonly>
+          <button id="btn-copiar-link" class="btn btn-secondary">Copiar Link</button>
+          <button id="btn-compartilhar" class="btn btn-primary" style="display: none;">Compartilhar</button>
+        </div>
+
+        <div style="margin-top: 18px; display: flex; align-items: center; justify-content: center; gap: 8px; color: #2563eb; font-weight: 500; font-size: 0.9rem;">
+          <span class="status-dot"></span>
+          <span>Aguardando o convidado entrar na sala...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card Secundário: Atalho de Amigos Registrados -->
+    <div class="card" id="card-amigos" style="display: none;">
+      <h2 class="card-title">Seus Amigos (Favoritos)</h2>
+      <p class="card-subtitle">Atalhos rápidos para conversar com outros participantes registrados.</p>
+
+      <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+        <input type="text" id="busca-amigo" class="form-control" placeholder="Buscar por @nick...">
+        <button id="btn-buscar-amigo" class="btn btn-secondary">Buscar</button>
+      </div>
+      <div id="lista-busca-amigos"></div>
+
+      <div id="lista-amigos-salvos" style="margin-top: 14px;">
+        <p style="font-size: 0.85rem; color: #94a3b8;">Nenhum amigo adicionado ainda.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    Chat com Tradução Simultânea — FECIP 2026 | Projeto de Cássio Roberto Monteiro Guimarães Natal
+  </footer>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/validacao.js"></script>
+  <script src="/js/tradutor.js"></script>
+  <script src="/js/socket-client.js"></script>
+  <script>
+    let socket = null;
+    let usuarioAtual = null;
+
+    // Checa sessão do usuário registrado ao carregar
+    async function carregarSessao() {
+      try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+        const navArea = document.getElementById('nav-auth-area');
+
+        if (data.autenticado && data.usuario) {
+          usuarioAtual = data.usuario;
+          document.getElementById('meu-nome').value = usuarioAtual.nick;
+          document.getElementById('meu-idioma').value = usuarioAtual.idioma_padrao || 'pt-BR';
+          document.getElementById('card-amigos').style.display = 'block';
+
+          navArea.innerHTML = `
+            <div class="user-tag">
+              <span>${usuarioAtual.nick}</span>
+              <span>${TradutorUI.obterBandeira(usuarioAtual.idioma_padrao)}</span>
+            </div>
+            <button id="btn-logout" class="nav-link" style="border:none; background:none; cursor:pointer;">Sair</button>
+          `;
+
+          document.getElementById('btn-logout').onclick = async () => {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.reload();
+          };
+
+          carregarAmigos();
+        } else {
+          navArea.innerHTML = `
+            <a href="/login.html" class="nav-link">Entrar</a>
+            <a href="/cadastro.html" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.88rem;">+ Cadastro</a>
+          `;
+        }
+      } catch (err) {
+        console.error('Erro ao verificar sessão:', err);
+      }
+    }
+
+    async function carregarAmigos() {
+      try {
+        const res = await fetch('/api/amigos/listar');
+        const data = await res.json();
+        const container = document.getElementById('lista-amigos-salvos');
+        if (data.amigos && data.amigos.length > 0) {
+          container.innerHTML = '<div style="display:flex; flex-direction:column; gap:8px;">' +
+            data.amigos.map(a => `
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">
+                <div>
+                  <strong>${Validacao.escaparHTML(a.nick)}</strong>
+                  <span style="font-size:0.8rem; color:#64748b; margin-left:6px;">${TradutorUI.obterBandeira(a.idioma_padrao)}</span>
+                </div>
+                <button class="btn btn-discreet" onclick="iniciarSalaComAmigo('${Validacao.escaparHTML(a.nick)}')">Convidar</button>
+              </div>
+            `).join('') + '</div>';
+        } else {
+          container.innerHTML = '<p style="font-size:0.85rem; color:#94a3b8;">Nenhum amigo adicionado ainda.</p>';
+        }
+      } catch (e) {}
+    }
+
+    document.getElementById('btn-buscar-amigo').onclick = async () => {
+      const q = document.getElementById('busca-amigo').value;
+      if (!q) return;
+      const res = await fetch('/api/amigos/buscar?nick=' + encodeURIComponent(q));
+      const data = await res.json();
+      const div = document.getElementById('lista-busca-amigos');
+      if (data.usuarios && data.usuarios.length > 0) {
+        div.innerHTML = data.usuarios.map(u => `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#fff; border:1px solid #bfdbfe; border-radius:6px; margin-top:6px;">
+            <span><strong>${Validacao.escaparHTML(u.nick)}</strong> ${TradutorUI.obterBandeira(u.idioma_padrao)}</span>
+            <button class="btn btn-primary" style="padding:4px 10px; font-size:0.8rem;" onclick="adicionarAmigo('${u.id}')">Adicionar</button>
+          </div>
+        `).join('');
+      } else {
+        div.innerHTML = '<p style="font-size:0.82rem; color:#64748b; margin-top:6px;">Nenhum usuário encontrado com esse nick.</p>';
+      }
+    };
+
+    window.adicionarAmigo = async (amigoId) => {
+      const res = await fetch('/api/amigos/adicionar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amigoId })
+      });
+      const data = await res.json();
+      if (data.sucesso) {
+        document.getElementById('lista-busca-amigos').innerHTML = '';
+        document.getElementById('busca-amigo').value = '';
+        carregarAmigos();
+      }
+    };
+
+    window.iniciarSalaComAmigo = (nick) => {
+      document.getElementById('btn-criar-sala').click();
+    };
+
+    // Fluxo T=1s: Criar Sala
+    document.getElementById('btn-criar-sala').onclick = () => {
+      const nome = document.getElementById('meu-nome').value.trim() || 'Criador';
+      const idioma = document.getElementById('meu-idioma').value;
+
+      if (!socket) socket = inicializarSocket();
+
+      socket.emit('criar_sala', {
+        nome,
+        idioma,
+        registrado: !!usuarioAtual,
+        baseUrl: window.location.origin
+      }, (res) => {
+        if (res && res.sucesso) {
+          // T=3s: Exibe Link e QR Code
+          document.getElementById('area-sala-pronta').style.display = 'block';
+          document.getElementById('img-qrcode').src = res.qrCode;
+          document.getElementById('input-link-sala').value = res.link;
+          document.getElementById('btn-criar-sala').style.display = 'none';
+
+          // Salva dados locais da sessão
+          sessionStorage.setItem('chat_sala_id', res.salaId);
+          sessionStorage.setItem('chat_meu_nome', nome);
+          sessionStorage.setItem('chat_meu_idioma', idioma);
+          sessionStorage.setItem('chat_papel', 'criador');
+        }
+      });
+    };
+
+    // Copiar Link
+    // Suporte nativo ao Compartilhar do Smartphone (WhatsApp, etc.)
+    if (navigator.share) {
+      const btnShare = document.getElementById('btn-compartilhar');
+      if (btnShare) {
+        btnShare.style.display = 'inline-flex';
+        btnShare.onclick = () => {
+          const url = document.getElementById('input-link-sala').value;
+          navigator.share({
+            title: 'Conversa com Tradução Simultânea - FECIP 2026',
+            text: 'Entre na minha sala para conversarmos em tempo real:',
+            url: url
+          }).catch(() => {});
+        };
+      }
+    }
+
+    document.getElementById('btn-copiar-link').onclick = () => {
+      const input = document.getElementById('input-link-sala');
+      input.select();
+      navigator.clipboard.writeText(input.value);
+      const btn = document.getElementById('btn-copiar-link');
+      btn.textContent = 'Copiado!';
+      setTimeout(() => btn.textContent = 'Copiar Link', 2000);
+    };
+
+    // T=6s e T=7s: Quando o convidado entra, o servidor emite 'sala_iniciada'
+    window.addEventListener('load', () => {
+      carregarSessao();
+      socket = inicializarSocket();
+
+      socket.on('sala_iniciada', (dados) => {
+        const sid = sessionStorage.getItem('chat_sala_id');
+        const nome = sessionStorage.getItem('chat_meu_nome') || 'Criador';
+        const idioma = sessionStorage.getItem('chat_meu_idioma') || 'pt-BR';
+        window.location.href = '/chat.html?sala=' + encodeURIComponent(sid) + '&papel=criador&nome=' + encodeURIComponent(nome) + '&idioma=' + encodeURIComponent(idioma);
+      });
+    });
+  </script>
+</body>
+</html>

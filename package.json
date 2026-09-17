@@ -1,0 +1,10 @@
+{
+  "name": "chat-traducao-fecip-2026",
+  "version": "1.0.0",
+  "description": "Chat com Traducao Simultanea",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "postinstall": "cd backend && npm install"
+  }
+}

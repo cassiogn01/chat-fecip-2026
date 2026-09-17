@@ -1,0 +1,15 @@
+# Docker Compose para LibreTranslate Local e Offline (Seção 8)
+# Tradução Simultânea: pt, en, es
+version: '3.8'
+
+services:
+  libretranslate:
+    image: libretranslate/libretranslate:latest
+    container_name: chat-libretranslate
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - LT_LOAD_ONLY=en,pt,es
+      - LT_UPDATE_MODELS=true
+      - LT_DEBUG=false

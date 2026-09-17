@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+  <title>Login — Chat com Tradução Simultânea</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/responsivo.css">
+</head>
+<body>
+  <header class="navbar">
+    <a href="/" class="brand">
+      <div class="brand-icon">💬</div>
+      <div>
+        <span class="brand-title">Chat Tradução</span>
+        <span class="brand-subtitle">FECIP 2026</span>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <a href="/cadastro.html" class="nav-link">+ Criar Conta</a>
+    </div>
+  </header>
+
+  <main class="main-content" style="max-width: 440px;">
+    <div class="card">
+      <h1 class="card-title">Acessar Conta</h1>
+      <p class="card-subtitle">Entre com seu @nick ou e-mail cadastrado.</p>
+
+      <div id="alerta-erro" class="banner banner-danger" style="display: none;"></div>
+
+      <form id="form-login" onsubmit="return false;">
+        <div class="form-group">
+          <label class="form-label" for="login-user">Nick ou E-mail</label>
+          <input type="text" id="login-user" class="form-control" placeholder="@nick ou seu@email.com" required autofocus>
+        </div>
+
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <label class="form-label" for="login-senha">Senha</label>
+            <a href="/reset-senha.html" style="font-size: 0.8rem; color: #2563eb; text-decoration: none;">Esqueci a senha</a>
+          </div>
+          <input type="password" id="login-senha" class="form-control" placeholder="Sua senha" required>
+        </div>
+
+        <button id="btn-login" type="submit" class="btn btn-primary btn-block" style="margin-top: 14px;">
+          Entrar
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('form-login').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const login = document.getElementById('login-user').value.trim();
+      const senha = document.getElementById('login-senha').value;
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ login, senha })
+        });
+        const data = await res.json();
+
+        if (!res.ok || data.erro) {
+          document.getElementById('alerta-erro').textContent = data.erro || 'Falha no login.';
+          document.getElementById('alerta-erro').style.display = 'block';
+        } else {
+          window.location.href = '/';
+        }
+      } catch (err) {
+        document.getElementById('alerta-erro').textContent = 'Erro ao conectar com o servidor.';
+        document.getElementById('alerta-erro').style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

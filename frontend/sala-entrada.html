@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+  <title>Entrar na Sala — Chat com Tradução Simultânea</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/responsivo.css">
+</head>
+<body>
+  <header class="navbar">
+    <a href="/" class="brand">
+      <div class="brand-icon">💬</div>
+      <div>
+        <span class="brand-title">Chat Tradução</span>
+        <span class="brand-subtitle">FECIP 2026</span>
+      </div>
+    </a>
+  </header>
+
+  <main class="main-content" style="max-width: 520px;">
+    <!-- T=4s: João entra via link/QR -> Frontend renderiza tela de ENTRADA -->
+    <div class="card" id="card-entrada">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <div style="font-size: 2.5rem; margin-bottom: 6px;">👋</div>
+        <h1 class="card-title">Você foi convidado!</h1>
+        <p class="card-subtitle">Entre para conversar em tempo real com tradução simultânea.</p>
+
+        <!-- Mostra: "@cassio 🇧🇷" (criador + idioma) -->
+        <div id="badge-criador" class="user-tag" style="display: inline-flex; margin: 6px auto; font-size: 0.95rem; padding: 6px 16px;">
+          <span>Criador da Sala:</span>
+          <strong id="criador-nick">Carregando...</strong>
+          <span id="criador-bandeira">🌐</span>
+        </div>
+      </div>
+
+      <div id="erro-sala" class="banner banner-danger" style="display: none;"></div>
+
+      <form id="form-entrar-sala" onsubmit="return false;">
+        <!-- Campo: "Qual é seu nome?" -->
+        <div class="form-group">
+          <label class="form-label" for="convidado-nome">Qual é seu nome?</label>
+          <input type="text" id="convidado-nome" class="form-control" placeholder="Ex: João" maxlength="50" required autofocus>
+          <span id="erro-nome" class="error-msg"></span>
+        </div>
+
+        <!-- Seletor: "Qual seu idioma?" -->
+        <div class="form-group">
+          <label class="form-label" for="convidado-idioma">Qual seu idioma?</label>
+          <select id="convidado-idioma" class="form-control">
+            <option value="en" selected>🇺🇸 English (en)</option>
+            <option value="pt-BR">🇧🇷 Português Brasileiro (pt-BR)</option>
+            <option value="es">🇪🇸 Español (es)</option>
+          </select>
+          <span class="form-help">Você lerá e enviará mensagens neste idioma.</span>
+        </div>
+
+        <!-- Botão: "ENTRAR NA SALA" (T=5s) -->
+        <button id="btn-entrar" type="submit" class="btn btn-primary btn-block" style="margin-top: 10px;">
+          ENTRAR NA SALA
+        </button>
+      </form>
+
+      <!-- Botão discreto: "+ CADASTRAR (opcional)" (T=4s) -->
+      <div style="text-align: center; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+        <a href="/cadastro.html" class="btn btn-discreet">
+          + CADASTRAR (opcional)
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    Chat com Tradução Simultânea — FECIP 2026
+  </footer>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/validacao.js"></script>
+  <script src="/js/tradutor.js"></script>
+  <script src="/js/socket-client.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const salaId = params.get('sala');
+
+    if (!salaId) {
+      document.getElementById('card-entrada').innerHTML = `
+        <div class="banner banner-danger">Link de sala inválido. Nenhuma sala informada.</div>
+        <a href="/" class="btn btn-secondary btn-block">Voltar ao Início</a>
+      `;
+    } else {
+      // Consulta informações prévias da sala para exibir o criador
+      fetch('/api/salas/' + encodeURIComponent(salaId))
+        .then(r => r.json())
+        .then(data => {
+          if (!data.existe) {
+            document.getElementById('card-entrada').innerHTML = `
+              <div class="banner banner-danger">Esta sala não existe ou já foi encerrada.</div>
+              <a href="/" class="btn btn-secondary btn-block" style="margin-top:10px;">Criar uma nova sala</a>
+            `;
+            return;
+          }
+
+          document.getElementById('criador-nick').textContent = data.criadorNick;
+          document.getElementById('criador-bandeira').textContent = TradutorUI.obterBandeira(data.criadorIdioma);
+        })
+        .catch(err => console.error(err));
+    }
+
+    const socket = inicializarSocket();
+
+    // T=5s: João preenche e clica ENTRAR
+    document.getElementById('form-entrar-sala').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('convidado-nome').value.trim();
+      const idioma = document.getElementById('convidado-idioma').value;
+
+      const erro = Validacao.validarNomeConvidado(nome);
+      if (erro) {
+        const span = document.getElementById('erro-nome');
+        span.textContent = erro;
+        span.classList.add('active');
+        return;
+      }
+
+      // T=6s: Backend valida e adiciona João à sala -> Estado muda para "ativo"
+      socket.emit('entrar_sala', {
+        salaId,
+        nome,
+        idioma,
+        registrado: false
+      }, (res) => {
+        if (res && res.erro) {
+          const erroBanner = document.getElementById('erro-sala');
+          erroBanner.textContent = res.erro;
+          erroBanner.style.display = 'block';
+        } else {
+          sessionStorage.setItem('chat_sala_id', salaId);
+          sessionStorage.setItem('chat_meu_nome', nome);
+          sessionStorage.setItem('chat_meu_idioma', idioma);
+          sessionStorage.setItem('chat_papel', 'convidado');
+          window.location.href = '/chat.html?sala=' + encodeURIComponent(salaId) + '&papel=convidado&nome=' + encodeURIComponent(nome) + '&idioma=' + encodeURIComponent(idioma);
+        }
+      });
+    });
+
+    socket.on('sala_iniciada', () => {
+      window.location.href = '/chat.html';
+    });
+  </script>
+</body>
+</html>

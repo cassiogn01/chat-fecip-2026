@@ -1,0 +1,322 @@
+/* ==========================================================================
+   DESIGN RESPONSIVO DEDICADO - FECIP 2026
+   - Modelo Mobile: Otimizado para Smartphones (Android / iOS)
+   - Modelo Desktop: Otimizado para Computadores e Telas Amplas
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. MODELO SMARTPHONE / MOBILE (Telas até 768px)
+   -------------------------------------------------------------------------- */
+@media screen and (max-width: 768px) {
+  :root {
+    --bubble-max-w: 88%;
+  }
+
+  body {
+    background-color: #ffffff;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Barra de Navegação Mobile */
+  .navbar {
+    padding: 10px 14px;
+    height: 56px;
+  }
+
+  .brand-title {
+    font-size: 1.05rem;
+  }
+
+  .brand-subtitle {
+    display: none; /* oculta tag em telas pequenas para economizar espaço */
+  }
+
+  .brand-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1.1rem;
+  }
+
+  .nav-actions {
+    gap: 8px;
+  }
+
+  .user-tag {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+  }
+
+  /* Conteúdo Principal Mobile */
+  .main-content {
+    padding: 12px 10px;
+  }
+
+  .card {
+    padding: 18px 14px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+  }
+
+  .card-subtitle {
+    font-size: 0.88rem;
+    margin-bottom: 16px;
+  }
+
+  /* Campos de Formulário Touch-Friendly (Evita zoom automático no iOS com font >= 16px) */
+  .form-control, .chat-input {
+    font-size: 16px !important;
+    padding: 12px 14px;
+    border-radius: 10px;
+  }
+
+  /* Botões Grandes e Fáceis de Tocar no Celular */
+  .btn {
+    min-height: 48px;
+    font-size: 1rem;
+    padding: 12px 20px;
+    border-radius: 10px;
+  }
+
+  .btn-discreet {
+    min-height: 38px;
+    font-size: 0.85rem;
+  }
+
+  /* QR Code no Celular */
+  .room-share-card {
+    padding: 16px 12px;
+  }
+
+  .qr-box {
+    padding: 8px;
+    margin: 12px 0;
+  }
+
+  .qr-box img {
+    width: 160px;
+    height: 160px;
+  }
+
+  .link-copy-group {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .link-copy-group .btn {
+    width: 100%;
+  }
+
+  /* ------------------------------------------------------------------------
+     INTERFACE DO CHAT NO SMARTPHONE (Estilo App Nativo - WhatsApp / Telegram)
+     ------------------------------------------------------------------------ */
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .chat-container {
+    height: 100dvh !important;
+    height: 100vh !important;
+    max-height: 100% !important;
+    width: 100% !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: #f8fafc !important;
+  }
+
+  .chat-topbar {
+    padding: 8px 12px !important;
+    height: 52px !important;
+    flex-shrink: 0 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    background: #ffffff !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+    z-index: 10 !important;
+  }
+
+  .participants-info {
+    gap: 6px;
+  }
+
+  .lang-chip {
+    font-size: 0.78rem;
+    padding: 4px 8px;
+  }
+
+  #btn-sair {
+    min-height: 32px !important;
+    padding: 4px 10px !important;
+    font-size: 0.78rem !important;
+    border-radius: 6px !important;
+  }
+
+  .messages-area {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 12px 10px !important;
+    gap: 10px !important;
+    background-color: #f8fafc !important;
+  }
+
+  .msg-wrapper {
+    max-width: var(--bubble-max-w);
+  }
+
+  .msg-content {
+    font-size: 0.94rem;
+    padding: 10px 13px;
+    border-radius: 14px;
+  }
+
+  .typing-bar {
+    flex-shrink: 0 !important;
+    padding: 4px 12px !important;
+    background: transparent !important;
+  }
+
+  /* Barra de Envio Fixa no Rodapé do Celular - NUNCA desaparece */
+  .chat-bottombar {
+    flex-shrink: 0 !important;
+    position: relative !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 8px 10px !important;
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 8px)) !important;
+    background: #ffffff !important;
+    border-top: 1px solid #e2e8f0 !important;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05) !important;
+    gap: 8px !important;
+    z-index: 20 !important;
+  }
+
+  .chat-input {
+    flex: 1 !important;
+    min-width: 0 !important;
+    border-radius: 24px !important;
+    padding: 10px 16px !important;
+    font-size: 16px !important; /* Previne zoom no iOS Safari */
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+
+  .char-limit {
+    display: none !important; /* Oculta contador para dar espaço total ao input */
+  }
+
+  #btn-enviar {
+    min-height: 42px !important;
+    height: 42px !important;
+    width: 42px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    background-color: var(--primary) !important;
+    border: none !important;
+    cursor: pointer !important;
+  }
+
+  #btn-enviar span {
+    display: none !important; /* Ícone limpo circular no celular */
+  }
+
+  #btn-enviar::after {
+    content: "➤" !important;
+    color: #ffffff !important;
+    font-size: 1.1rem !important;
+    line-height: 1 !important;
+    margin-left: 2px !important;
+  }
+
+  .footer {
+    display: none !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. MODELO DESKTOP / COMPUTADOR (Telas a partir de 769px)
+   -------------------------------------------------------------------------- */
+@media screen and (min-width: 769px) {
+  body {
+    background-color: #f8fafc;
+  }
+
+  .navbar {
+    padding: 14px 32px;
+  }
+
+  .main-content {
+    max-width: 900px;
+    padding: 36px 20px;
+  }
+
+  .card {
+    padding: 32px 36px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+  }
+
+  .chat-container {
+    max-width: 920px;
+    margin: 0 auto;
+    height: calc(100vh - 110px);
+    max-height: 820px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  }
+
+  .chat-topbar {
+    padding: 14px 24px;
+  }
+
+  .msg-wrapper {
+    max-width: 70%;
+  }
+
+  .msg-content {
+    font-size: 0.98rem;
+    padding: 12px 18px;
+    border-radius: 16px;
+  }
+
+  .chat-bottombar {
+    padding: 14px 22px;
+    gap: 12px;
+  }
+
+  .chat-input {
+    border-radius: 28px;
+    padding: 12px 20px;
+  }
+
+  .qr-box img {
+    width: 210px;
+    height: 210px;
+  }
+}

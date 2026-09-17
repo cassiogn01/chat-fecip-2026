@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+  <title>Conversa em Tempo Real — Chat FECIP 2026</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/responsivo.css">
+</head>
+<body>
+  <div class="chat-container">
+    <!-- Barra Superior: Participantes e Idiomas -->
+    <div class="chat-topbar">
+      <div class="participants-info">
+        <div class="lang-chip">
+          <span id="status-dot" class="status-dot"></span>
+          <span id="meu-info">Você</span>
+        </div>
+        <span style="color: #cbd5e1;">↔</span>
+        <div class="lang-chip">
+          <span id="parceiro-info">Aguardando parceiro...</span>
+        </div>
+      </div>
+
+      <div>
+        <button id="btn-sair" class="btn btn-danger" style="padding: 6px 14px; font-size: 0.85rem;">
+          Sair da Sala
+        </button>
+      </div>
+    </div>
+
+    <!-- Área de Mensagens (T=7s, T=8s, T=9s, T=10s) -->
+    <div id="mensagens-area" class="messages-area">
+      <div class="msg-system-box">
+        🔒 Conversa temporária iniciada. As mensagens não são salvas em nenhum lugar.
+      </div>
+    </div>
+
+    <!-- Indicador de Digitação -->
+    <div id="indicador-digitando" class="typing-bar">
+      <span id="texto-digitando">Fulano está digitando...</span>
+    </div>
+
+    <!-- Barra Inferior de Envio -->
+    <div class="chat-bottombar">
+      <input type="text" id="input-mensagem" class="chat-input" placeholder="Digite no seu idioma e o parceiro lerá no dele..." maxlength="500" autocomplete="off" autofocus>
+      <span id="contador-chars" class="char-limit">0/500</span>
+      <button id="btn-enviar" class="btn btn-primary" title="Enviar mensagem">
+        <span>Enviar</span>
+      </button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/validacao.js"></script>
+  <script src="/js/tradutor.js"></script>
+  <script src="/js/socket-client.js"></script>
+  <script>
+    // Recupera dados dos parâmetros da URL ou do sessionStorage
+    const params = new URLSearchParams(window.location.search);
+    const salaId = params.get('sala') || sessionStorage.getItem('chat_sala_id');
+    const meuNome = params.get('nome') || sessionStorage.getItem('chat_meu_nome') || 'Eu';
+    const meuIdioma = params.get('idioma') || sessionStorage.getItem('chat_meu_idioma') || 'pt-BR';
+    const papel = params.get('papel') || sessionStorage.getItem('chat_papel') || 'convidado';
+
+    // Salva na sessão local para garantir consistência
+    if (salaId) sessionStorage.setItem('chat_sala_id', salaId);
+    if (meuNome) sessionStorage.setItem('chat_meu_nome', meuNome);
+    if (meuIdioma) sessionStorage.setItem('chat_meu_idioma', meuIdioma);
+    if (papel) sessionStorage.setItem('chat_papel', papel);
+
+    if (!salaId) {
+      alert('Nenhuma sala especificada. Redirecionando...');
+      window.location.href = '/';
+    }
+
+    // Exibe meu nome e bandeira imediatamente no cabeçalho
+    document.getElementById('meu-info').innerHTML = Validacao.escaparHTML(meuNome) + ' ' + TradutorUI.obterBandeira(meuIdioma);
+
+    const socket = inicializarSocket();
+    const areaMensagens = document.getElementById('mensagens-area');
+    const inputMensagem = document.getElementById('input-mensagem');
+    const contadorChars = document.getElementById('contador-chars');
+    const indicadorDigitando = document.getElementById('indicador-digitando');
+
+    function atualizarHeader(sala) {
+      if (!sala) return;
+      let outro = null;
+      if (papel === 'criador') {
+        outro = sala.convidado;
+      } else {
+        outro = sala.criador;
+      }
+
+      if (outro && outro.nome) {
+        document.getElementById('parceiro-info').innerHTML = Validacao.escaparHTML(outro.nome) + ' ' + TradutorUI.obterBandeira(outro.idioma);
+      } else {
+        document.getElementById('parceiro-info').textContent = 'Aguardando parceiro entrar...';
+      }
+    }
+
+    function conectarAoChat() {
+      socket.emit('conectar_chat', {
+        salaId,
+        nome: meuNome,
+        idioma: meuIdioma,
+        papel
+      }, (res) => {
+        if (res && res.erro) {
+          const aviso = document.createElement('div');
+          aviso.className = 'msg-system-box';
+          aviso.style.color = '#dc2626';
+          aviso.style.borderColor = '#fca5a5';
+          aviso.innerHTML = '⚠️ ' + Validacao.escaparHTML(res.erro) + ' <a href="/" style="color:#2563eb; margin-left:8px; font-weight:bold;">Criar Nova Sala</a>';
+          areaMensagens.appendChild(aviso);
+          inputMensagem.disabled = true;
+          document.getElementById('btn-enviar').disabled = true;
+        } else if (res && res.sala) {
+          atualizarHeader(res.sala);
+        }
+      });
+    }
+
+    socket.on('connect', () => {
+      conectarAoChat();
+    });
+
+    // Conecta imediatamente
+    conectarAoChat();
+
+    socket.on('sala_pronta', (dados) => {
+      atualizarHeader(dados);
+    });
+
+    socket.on('sala_iniciada', (dados) => {
+      atualizarHeader(dados);
+    });
+
+    // Contador de Caracteres em tempo real
+    inputMensagem.addEventListener('input', () => {
+      const len = inputMensagem.value.length;
+      contadorChars.textContent = len + '/500';
+      if (len >= 450) contadorChars.className = 'char-limit alert';
+      else contadorChars.className = 'char-limit';
+
+      socket.emit('digitando');
+      clearTimeout(window.timerDigitacao);
+      window.timerDigitacao = setTimeout(() => {
+        socket.emit('parou_digitacao');
+      }, 1200);
+    });
+
+    // Envio de Mensagem (T=8s e T=9s)
+    function enviar() {
+      const texto = inputMensagem.value.trim();
+      const erro = Validacao.validarMensagem(texto);
+      if (erro) return;
+
+      socket.emit('enviar_mensagem', { texto });
+      socket.emit('parou_digitacao');
+      inputMensagem.value = '';
+      contadorChars.textContent = '0/500';
+      inputMensagem.focus();
+    }
+
+    document.getElementById('btn-enviar').onclick = enviar;
+    inputMensagem.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        enviar();
+      }
+    });
+
+    // T=8s e T=10s: Recebimento de Mensagem
+    socket.on('mensagem_recebida', (msg) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'msg-wrapper ' + msg.lado;
+
+      let badgeHtml = '';
+      if (msg.lado === 'other' && msg.traduzido) {
+        badgeHtml = '<span class="msg-badge">Traduzido (' + msg.idiomaOriginal + ' → ' + msg.idiomaDestino + ')</span>';
+      }
+
+      let avisoHtml = '';
+      if (msg.aviso) {
+        avisoHtml = '<div style="font-size:0.75rem; color:#b91c1c; margin-top:4px;">⚠️ ' + Validacao.escaparHTML(msg.aviso) + '</div>';
+      }
+
+      wrapper.innerHTML = 
+        '<div class="msg-content">' +
+          '<div>' + msg.texto + '</div>' +
+          avisoHtml +
+        '</div>' +
+        '<div class="msg-info">' +
+          '<span>' + msg.hora + '</span>' +
+          badgeHtml +
+        '</div>';
+
+      areaMensagens.appendChild(wrapper);
+      areaMensagens.scrollTop = areaMensagens.scrollHeight;
+    });
+
+    // Indicador de Digitação
+    socket.on('usuario_digitando', (dados) => {
+      document.getElementById('texto-digitando').textContent = dados.nome + ' está digitando...';
+      indicadorDigitando.classList.add('active');
+    });
+
+    socket.on('usuario_parou_digitacao', () => {
+      indicadorDigitando.classList.remove('active');
+    });
+
+    // Cenário A & T=120s: Desconexão do parceiro
+    socket.on('participante_saiu', (dados) => {
+      const aviso = document.createElement('div');
+      aviso.className = 'msg-system-box';
+      aviso.style.color = '#dc2626';
+      aviso.style.borderColor = '#fca5a5';
+      aviso.textContent = dados.mensagem;
+      areaMensagens.appendChild(aviso);
+      areaMensagens.scrollTop = areaMensagens.scrollHeight;
+
+      inputMensagem.disabled = true;
+      inputMensagem.placeholder = 'A sala foi encerrada.';
+      document.getElementById('btn-enviar').disabled = true;
+    });
+
+    // Erros de rate limit ou sala
+    socket.on('erro_mensagem', (dados) => {
+      const aviso = document.createElement('div');
+      aviso.className = 'msg-system-box';
+      aviso.style.color = '#d97706';
+      aviso.textContent = dados.erro;
+      areaMensagens.appendChild(aviso);
+      areaMensagens.scrollTop = areaMensagens.scrollHeight;
+    });
+
+    // Botão Sair da Sala
+    document.getElementById('btn-sair').onclick = () => {
+      if (confirm('Deseja realmente sair? A sala será completamente apagada.')) {
+        socket.emit('sair_sala');
+        sessionStorage.clear();
+        window.location.href = '/';
+      }
+    };
+  </script>
+</body>
+</html>
