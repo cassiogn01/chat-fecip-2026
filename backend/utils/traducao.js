@@ -68,13 +68,12 @@ async function traduzirTexto(texto, origem, destino) {
 
     throw new Error('Resposta de tradução sem campo translatedText');
   } catch (err) {
-    // Se o Docker local falhar (como acontece na nuvem Render), tenta o servidor comunitário LibreTranslate na nuvem:
+    // Camada 2: Servidor Comunitário LibreTranslate na nuvem
     try {
-      const fallbackUrl = 'https://translate.disroot.org/translate';
       const fbController = new AbortController();
-      const fbTimeout = setTimeout(() => fbController.abort(), 4000);
+      const fbTimeout = setTimeout(() => fbController.abort(), 3000);
 
-      const fbResponse = await fetch(fallbackUrl, {
+      const fbResponse = await fetch('https://translate.disroot.org/translate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -100,15 +99,47 @@ async function traduzirTexto(texto, origem, destino) {
         }
       }
     } catch (fbErr) {
-      console.warn('[Tradutor] Instância LibreTranslate nuvem também indisponível:', fbErr.message);
+      // Ignora e avança para a camada de alta disponibilidade
     }
 
-    console.warn('[Tradutor] LibreTranslate indisponível:', err.message);
+    // Camada 3: Motor de Alta Disponibilidade (Ininterrupto, 100% Grátis)
+    try {
+      const gtxUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${src}&tl=${tgt}&dt=t&q=${encodeURIComponent(texto)}`;
+      const gtxController = new AbortController();
+      const gtxTimeout = setTimeout(() => gtxController.abort(), 4000);
 
+      const gtxRes = await fetch(gtxUrl, {
+        signal: gtxController.signal,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+        }
+      });
+
+      clearTimeout(gtxTimeout);
+
+      if (gtxRes.ok) {
+        const gtxData = await gtxRes.json();
+        if (gtxData && gtxData[0] && Array.isArray(gtxData[0])) {
+          const resultado = gtxData[0].map(item => item[0]).filter(Boolean).join('');
+          if (resultado && resultado.trim()) {
+            return {
+              texto: resultado,
+              traduzido: true,
+              origem: src,
+              destino: tgt
+            };
+          }
+        }
+      }
+    } catch (gtxErr) {
+      console.warn('[Tradutor] Falha na camada de alta disponibilidade:', gtxErr.message);
+    }
+
+    // Cenário B oficial da especificação caso todos os nós caiam:
     return {
       texto: texto,
       traduzido: false,
-      aviso: 'Tradução indisponível (LibreTranslate offline).'
+      aviso: 'Tradução indisponível temporariamente. Aguarde alguns instantes.'
     };
   }
 }
