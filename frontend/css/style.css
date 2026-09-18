@@ -1,33 +1,43 @@
 /* ==========================================================================
    DESIGN SYSTEM - CHAT COM TRADUÇÃO SIMULTÂNEA (FECIP 2026)
    Lema: "Entra, conversa, traduz, tchau"
-   Estética minimalista, alto contraste, acessível e moderna
+   Estética minimalista, alto contraste, acessível, moderna e escura (Dark OLED)
+   Cores Oficiais:
+   - Primária (Fundo geral): #101010
+   - Secundária (Superfícies / Cards / Topbars): #1c1c1c
+   - Tipografia: SF Pro, Roboto, system-ui
+   - Texto: Branco e tons claros de alto contraste
    ========================================================================== */
 
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap');
+
 :root {
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --primary-light: #eff6ff;
-  --primary-border: #bfdbfe;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-light: rgba(59, 130, 246, 0.15);
+  --primary-border: rgba(59, 130, 246, 0.35);
   
-  --bg-page: #f8fafc;
-  --bg-surface: #ffffff;
-  --bg-muted: #f1f5f9;
+  /* Cores Principais do Background solicitadas pelo usuário */
+  --bg-page: #101010;             /* Imagem 1: Cor primária de fundo */
+  --bg-surface: #1c1c1c;          /* Imagem 2: Cor secundária para cards e containers */
+  --bg-muted: #262626;            /* Elementos secundários / inputs / chips */
+  --bg-elevated: #2d2d2d;
   
-  --text-main: #0f172a;
-  --text-muted: #64748b;
-  --text-subtle: #94a3b8;
+  /* Textos de Alto Contraste */
+  --text-main: #ffffff;           /* Letras brancas */
+  --text-muted: #d1d5db;          /* Branco suave para subtítulos */
+  --text-subtle: #9ca3af;         /* Detalhes menores e timestamps */
   
-  /* Cores das bolhas de chat (Conforme Especificação Seção 4) */
-  --bubble-me-bg: #e0f2fe;        /* Azul claro (T=8s) */
-  --bubble-me-text: #0369a1;
-  --bubble-me-border: #bae6fd;
+  /* Cores das bolhas de chat com alto contraste */
+  --bubble-me-bg: #1e3a8a;        /* Azul escuro elegante */
+  --bubble-me-text: #ffffff;      /* Letra branca */
+  --bubble-me-border: #3b82f6;
 
-  --bubble-other-bg: #f1f5f9;     /* Cinza (T=10s) */
-  --bubble-other-text: #1e293b;
-  --bubble-other-border: #e2e8f0;
+  --bubble-other-bg: #262626;     /* Cinza escuro da paleta */
+  --bubble-other-text: #ffffff;   /* Letra branca */
+  --bubble-other-border: #383838;
 
-  --border-subtle: #e2e8f0;
+  --border-subtle: #2d2d2d;
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 22px;
@@ -36,8 +46,8 @@
   --warning: #f59e0b;
   --danger: #ef4444;
 
-  --shadow-card: 0 4px 12px rgba(15, 23, 42, 0.05);
-  --shadow-bubble: 0 2px 4px rgba(15, 23, 42, 0.04);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-bubble: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 * {
@@ -47,7 +57,7 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", "Roboto", "Segoe UI", Helvetica, Arial, sans-serif;
   background-color: var(--bg-page);
   color: var(--text-main);
   line-height: 1.5;
@@ -190,8 +200,8 @@ body {
   font-size: 0.95rem;
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--radius-sm);
-  background-color: var(--bg-surface);
-  color: var(--text-main);
+  background-color: var(--bg-muted);
+  color: #ffffff;
   outline: none;
   font-family: inherit;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -199,7 +209,13 @@ body {
 
 .form-control:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+  background-color: var(--bg-elevated);
+}
+
+.form-control option {
+  background-color: var(--bg-surface);
+  color: #ffffff;
 }
 
 .form-help {
@@ -245,22 +261,23 @@ body {
 
 .btn-secondary {
   background: var(--bg-muted);
-  color: var(--text-main);
+  color: #ffffff;
   border: 1px solid var(--border-subtle);
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
+  background: var(--bg-elevated);
 }
 
 .btn-danger {
-  background: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
 }
 
 .btn-danger:hover {
-  background: #fca5a5;
+  background: rgba(239, 68, 68, 0.35);
+  color: #ffffff;
 }
 
 .btn-discreet {
@@ -273,7 +290,7 @@ body {
 
 .btn-discreet:hover {
   border-color: var(--primary);
-  color: var(--primary);
+  color: #ffffff;
   background: var(--primary-light);
 }
 
@@ -327,7 +344,7 @@ body {
 
 .chat-topbar {
   padding: 14px 20px;
-  background: #ffffff;
+  background: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   justify-content: space-between;
@@ -343,13 +360,14 @@ body {
 .lang-chip {
   font-size: 0.82rem;
   font-weight: 600;
-  padding: 3px 8px;
+  padding: 4px 10px;
   background: var(--bg-muted);
+  color: #ffffff;
   border-radius: 999px;
   border: 1px solid var(--border-subtle);
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .status-dot {
@@ -367,7 +385,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: #fbfcfd;
+  background: var(--bg-page);
 }
 
 /* Bolhas de Mensagem */
@@ -398,14 +416,14 @@ body {
 
 .msg-wrapper.me .msg-content {
   background-color: var(--bubble-me-bg);
-  color: var(--bubble-me-text);
+  color: #ffffff;
   border: 1px solid var(--bubble-me-border);
   border-bottom-right-radius: 3px;
 }
 
 .msg-wrapper.other .msg-content {
   background-color: var(--bubble-other-bg);
-  color: var(--bubble-other-text);
+  color: #ffffff;
   border: 1px solid var(--bubble-other-border);
   border-bottom-left-radius: 3px;
 }
@@ -422,18 +440,19 @@ body {
 
 .msg-badge {
   font-size: 0.68rem;
-  background: rgba(0, 0, 0, 0.05);
-  padding: 1px 5px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #d1d5db;
+  padding: 1px 6px;
   border-radius: 3px;
   font-weight: 500;
 }
 
 .msg-system-box {
   align-self: center;
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--bg-surface);
+  color: var(--text-muted);
   font-size: 0.8rem;
-  padding: 5px 14px;
+  padding: 6px 16px;
   border-radius: 999px;
   border: 1px solid var(--border-subtle);
   text-align: center;
@@ -443,10 +462,11 @@ body {
 
 .typing-bar {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-subtle);
   font-style: italic;
   padding: 4px 12px;
   display: none;
+  background: var(--bg-surface);
 }
 
 .typing-bar.active {
@@ -457,7 +477,7 @@ body {
 .chat-bottombar {
   padding: 12px 18px;
   border-top: 1px solid var(--border-subtle);
-  background: #ffffff;
+  background: var(--bg-surface);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -465,16 +485,25 @@ body {
 
 .chat-input {
   flex: 1;
-  padding: 12px 16px;
+  padding: 12px 18px;
   border: 1.5px solid var(--border-subtle);
   border-radius: 999px;
   font-size: 0.95rem;
+  background-color: var(--bg-muted);
+  color: #ffffff;
   outline: none;
   font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .chat-input:focus {
   border-color: var(--primary);
+  background-color: var(--bg-elevated);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+.chat-input::placeholder {
+  color: #9ca3af;
 }
 
 .char-limit {
@@ -504,28 +533,28 @@ body {
 }
 
 .banner-warning {
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  color: #92400e;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fde68a;
 }
 
 .banner-danger {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fecaca;
 }
 
 .banner-success {
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  color: #065f46;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #a7f3d0;
 }
 
 /* Rodapé */
 .footer {
   text-align: center;
-  padding: 16px;
-  font-size: 0.8rem;
+  padding: 18px 16px;
+  font-size: 0.82rem;
   color: var(--text-subtle);
   border-top: 1px solid var(--border-subtle);
   background: var(--bg-surface);

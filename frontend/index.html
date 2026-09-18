@@ -48,8 +48,8 @@
 
       <!-- Área do QR Code e Link (Aparece após T=2s e T=3s) -->
       <div id="area-sala-pronta" class="room-share-card" style="display: none;">
-        <h3 style="font-size: 1.15rem; color: #0f172a; margin-bottom: 4px;">Sua sala está pronta!</h3>
-        <p style="font-size: 0.88rem; color: #64748b;">Mostre o QR Code para o convidado ler com a câmera ou envie o link:</p>
+        <h3 style="font-size: 1.15rem; color: #ffffff; margin-bottom: 4px;">Sua sala está pronta!</h3>
+        <p style="font-size: 0.88rem; color: #d1d5db;">Mostre o QR Code para o convidado ler com a câmera ou envie o link:</p>
 
         <div class="qr-box">
           <img id="img-qrcode" src="" alt="QR Code de Acesso à Sala">
@@ -61,7 +61,7 @@
           <button id="btn-compartilhar" class="btn btn-primary" style="display: none;">Compartilhar</button>
         </div>
 
-        <div style="margin-top: 18px; display: flex; align-items: center; justify-content: center; gap: 8px; color: #2563eb; font-weight: 500; font-size: 0.9rem;">
+        <div style="margin-top: 18px; display: flex; align-items: center; justify-content: center; gap: 8px; color: #60a5fa; font-weight: 500; font-size: 0.9rem;">
           <span class="status-dot"></span>
           <span>Aguardando o convidado entrar na sala...</span>
         </div>
@@ -80,7 +80,7 @@
       <div id="lista-busca-amigos"></div>
 
       <div id="lista-amigos-salvos" style="margin-top: 14px;">
-        <p style="font-size: 0.85rem; color: #94a3b8;">Nenhum amigo adicionado ainda.</p>
+        <p style="font-size: 0.85rem; color: #9ca3af;">Nenhum amigo adicionado ainda.</p>
       </div>
     </div>
   </main>
@@ -143,16 +143,16 @@
         if (data.amigos && data.amigos.length > 0) {
           container.innerHTML = '<div style="display:flex; flex-direction:column; gap:8px;">' +
             data.amigos.map(a => `
-              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:var(--bg-muted); border:1px solid var(--border-subtle); border-radius:8px;">
                 <div>
-                  <strong>${Validacao.escaparHTML(a.nick)}</strong>
-                  <span style="font-size:0.8rem; color:#64748b; margin-left:6px;">${TradutorUI.obterBandeira(a.idioma_padrao)}</span>
+                  <strong style="color:#ffffff;">${Validacao.escaparHTML(a.nick)}</strong>
+                  <span style="font-size:0.8rem; color:#9ca3af; margin-left:6px;">${TradutorUI.obterBandeira(a.idioma_padrao)}</span>
                 </div>
                 <button class="btn btn-discreet" onclick="iniciarSalaComAmigo('${Validacao.escaparHTML(a.nick)}')">Convidar</button>
               </div>
             `).join('') + '</div>';
         } else {
-          container.innerHTML = '<p style="font-size:0.85rem; color:#94a3b8;">Nenhum amigo adicionado ainda.</p>';
+          container.innerHTML = '<p style="font-size:0.85rem; color:#9ca3af;">Nenhum amigo adicionado ainda.</p>';
         }
       } catch (e) {}
     }
@@ -165,13 +165,13 @@
       const div = document.getElementById('lista-busca-amigos');
       if (data.usuarios && data.usuarios.length > 0) {
         div.innerHTML = data.usuarios.map(u => `
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#fff; border:1px solid #bfdbfe; border-radius:6px; margin-top:6px;">
-            <span><strong>${Validacao.escaparHTML(u.nick)}</strong> ${TradutorUI.obterBandeira(u.idioma_padrao)}</span>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:var(--bg-muted); border:1px solid var(--border-subtle); border-radius:6px; margin-top:6px;">
+            <span style="color:#ffffff;"><strong>${Validacao.escaparHTML(u.nick)}</strong> ${TradutorUI.obterBandeira(u.idioma_padrao)}</span>
             <button class="btn btn-primary" style="padding:4px 10px; font-size:0.8rem;" onclick="adicionarAmigo('${u.id}')">Adicionar</button>
           </div>
         `).join('');
       } else {
-        div.innerHTML = '<p style="font-size:0.82rem; color:#64748b; margin-top:6px;">Nenhum usuário encontrado com esse nick.</p>';
+        div.innerHTML = '<p style="font-size:0.82rem; color:#9ca3af; margin-top:6px;">Nenhum usuário encontrado com esse nick.</p>';
       }
     };
 
