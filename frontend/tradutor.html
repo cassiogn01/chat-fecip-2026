@@ -39,6 +39,17 @@
 
   <!-- Layout Inspirado no Google Tradutor Dark com Glassmorphism e True Black -->
   <main class="main-content" style="max-width: 1100px;">
+    <!-- Banner de Retorno para Conversa Ativa -->
+    <div id="banner-chat-ativo" class="banner-sala-ativa" style="display: none; width: 100%; margin-bottom: 16px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="status-dot"></span>
+        <span style="color: #ffffff; font-size: 0.9rem;">Você possui uma <strong>conversa ativa</strong></span>
+      </div>
+      <a id="link-voltar-chat" href="/chat.html" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.85rem; text-decoration: none;">
+        Voltar ao Chat 💬
+      </a>
+    </div>
+
     <div class="gt-layout">
       <!-- Barra Superior de Modos (Estilo Google Tradutor) -->
       <div class="gt-mode-bar">
@@ -61,7 +72,8 @@
               <option value="es">🇪🇸 Espanha — Español (es)</option>
             </select>
             <button id="btn-colar" class="gt-action-btn" title="Colar texto da área de transferência">
-              📋 <span>Colar</span>
+              <img src="/img/paste.gif" alt="Colar" class="icon-animated-sm">
+              <span>Colar</span>
             </button>
           </div>
 
@@ -103,7 +115,8 @@
           <div class="gt-box-footer">
             <div class="gt-actions-group">
               <button id="btn-copiar" class="gt-action-btn" title="Copiar tradução para a área de transferência">
-                📑 <span>Copiar</span>
+                <img src="/img/copy.gif" alt="Copiar" class="icon-animated-sm">
+                <span>Copiar</span>
               </button>
             </div>
             <span id="aviso-motor" style="font-size: 0.76rem; color: var(--text-subtle);">
@@ -296,6 +309,22 @@
           btnCopiar.classList.remove('active');
         }, 1800);
       });
+    });
+
+    // Verifica se há sala ativa em andamento para exibir banner de retorno ao Chat
+    window.addEventListener('load', () => {
+      const activeSala = sessionStorage.getItem('chat_sala_id');
+      if (activeSala) {
+        const banner = document.getElementById('banner-chat-ativo');
+        const linkVoltar = document.getElementById('link-voltar-chat');
+        if (banner && linkVoltar) {
+          const nome = sessionStorage.getItem('chat_meu_nome') || 'Eu';
+          const idioma = sessionStorage.getItem('chat_meu_idioma') || 'pt-BR';
+          const papel = sessionStorage.getItem('chat_papel') || 'convidado';
+          linkVoltar.href = '/chat.html?sala=' + encodeURIComponent(activeSala) + '&papel=' + encodeURIComponent(papel) + '&nome=' + encodeURIComponent(nome) + '&idioma=' + encodeURIComponent(idioma);
+          banner.style.display = 'flex';
+        }
+      }
     });
   </script>
 </body>

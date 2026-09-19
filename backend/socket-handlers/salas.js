@@ -205,10 +205,11 @@ class GerenciadorSalas {
       // Usuário clicou explicitamente em "Sair da Sala"
       encerrar();
     } else {
-      // Queda de conexão ou fechamento de aba: aguarda 15 segundos para confirmar se não foi um micro corte de internet
-      console.log('[Sala ' + salaId + '] ' + quemSaiu + ' perdeu conexão. Aguardando 15s antes de encerrar...');
+      // Navegação temporária entre abas/telas ou micro queda de conexão: aguarda 120s (2 min)
+      // Permite que o usuário consulte o Menu Principal ou Tradutor Direto e retorne sem derrubar a conversa!
+      console.log('[Sala ' + salaId + '] ' + quemSaiu + ' desconectou temporariamente. Aguardando 120s para permitir retorno sem derrubar a sala...');
       if (sala.destruirTimeout) clearTimeout(sala.destruirTimeout);
-      sala.destruirTimeout = setTimeout(encerrar, 15000);
+      sala.destruirTimeout = setTimeout(encerrar, 120000);
     }
   }
 }

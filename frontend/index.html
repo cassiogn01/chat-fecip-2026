@@ -35,6 +35,17 @@
   </header>
 
   <main class="main-content">
+    <!-- Banner de Retorno para Conversa Ativa -->
+    <div id="banner-chat-ativo" class="banner-sala-ativa" style="display: none; width: 100%; max-width: 480px; margin-bottom: 16px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="status-dot"></span>
+        <span style="color: #ffffff; font-size: 0.9rem;">Você possui uma <strong>conversa ativa</strong></span>
+      </div>
+      <a id="link-voltar-chat" href="/chat.html" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.85rem; text-decoration: none;">
+        Voltar ao Chat 💬
+      </a>
+    </div>
+
     <!-- Card Principal: Criar Sala Rápida -->
     <div class="card" id="card-criar-sala">
       <h1 class="card-title">Criar Sala de Conversa</h1>
@@ -265,6 +276,20 @@
     window.addEventListener('load', () => {
       carregarSessao();
       socket = inicializarSocket();
+
+      // Verifica se há uma conversa em andamento para exibir banner de retorno
+      const activeSala = sessionStorage.getItem('chat_sala_id');
+      if (activeSala) {
+        const banner = document.getElementById('banner-chat-ativo');
+        const linkVoltar = document.getElementById('link-voltar-chat');
+        if (banner && linkVoltar) {
+          const nome = sessionStorage.getItem('chat_meu_nome') || 'Eu';
+          const idioma = sessionStorage.getItem('chat_meu_idioma') || 'pt-BR';
+          const papel = sessionStorage.getItem('chat_papel') || 'convidado';
+          linkVoltar.href = '/chat.html?sala=' + encodeURIComponent(activeSala) + '&papel=' + encodeURIComponent(papel) + '&nome=' + encodeURIComponent(nome) + '&idioma=' + encodeURIComponent(idioma);
+          banner.style.display = 'flex';
+        }
+      }
 
       socket.on('sala_iniciada', (dados) => {
         const sid = sessionStorage.getItem('chat_sala_id');
