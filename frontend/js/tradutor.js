@@ -4,13 +4,13 @@
  */
 const TradutorUI = {
   idiomas: {
-    'pt-BR': { nome: 'Português BR', bandeira: '🇧🇷', iso: 'pt' },
-    'en': { nome: 'English', bandeira: '🇺🇸', iso: 'en' },
-    'es': { nome: 'Español', bandeira: '🇪🇸', iso: 'es' }
+    'pt-BR': { nome: 'Português', pais: 'Brasil', bandeira: '🇧🇷', iso: 'pt' },
+    'en': { nome: 'English', pais: 'Estados Unidos', bandeira: '🇺🇸', iso: 'en' },
+    'es': { nome: 'Español', pais: 'Espanha', bandeira: '🇪🇸', iso: 'es' }
   },
 
   obterInfo(codigo) {
-    return this.idiomas[codigo] || { nome: codigo, bandeira: '🌐', iso: codigo };
+    return this.idiomas[codigo] || { nome: codigo, pais: 'Global', bandeira: '🌐', iso: codigo };
   },
 
   obterBandeira(codigo) {
@@ -19,5 +19,11 @@ const TradutorUI = {
 
   obterNome(codigo) {
     return (this.idiomas[codigo] && this.idiomas[codigo].nome) || codigo;
+  },
+
+  obterPaisComBandeira(codigo) {
+    const item = this.idiomas[codigo];
+    if (item) return `${item.bandeira} ${item.pais} (${item.nome})`;
+    return `🌐 ${codigo}`;
   }
 };

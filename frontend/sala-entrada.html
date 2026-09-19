@@ -50,9 +50,9 @@
         <div class="form-group">
           <label class="form-label" for="convidado-idioma">Qual seu idioma?</label>
           <select id="convidado-idioma" class="form-control">
-            <option value="en" selected>🇺🇸 English (en)</option>
-            <option value="pt-BR">🇧🇷 Português Brasileiro (pt-BR)</option>
-            <option value="es">🇪🇸 Español (es)</option>
+            <option value="en" selected>🇺🇸 Estados Unidos — English (en)</option>
+            <option value="pt-BR">🇧🇷 Brasil — Português (pt-BR)</option>
+            <option value="es">🇪🇸 Espanha — Español (es)</option>
           </select>
           <span class="form-help">Você lerá e enviará mensagens neste idioma.</span>
         </div>
@@ -103,7 +103,7 @@
           }
 
           document.getElementById('criador-nick').textContent = data.criadorNick;
-          document.getElementById('criador-bandeira').textContent = TradutorUI.obterBandeira(data.criadorIdioma);
+          document.getElementById('criador-bandeira').textContent = TradutorUI.obterPaisComBandeira(data.criadorIdioma);
         })
         .catch(err => console.error(err));
     }

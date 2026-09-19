@@ -134,11 +134,20 @@
   }
 
   /* ------------------------------------------------------------------------
-     INTERFACE DO CHAT NO SMARTPHONE (Estilo App Nativo - WhatsApp / Telegram)
+     INTERFACE DO CHAT NO SMARTPHONE (Estilo App Nativo com Fluidez Total)
      ------------------------------------------------------------------------ */
   html, body {
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto !important; /* Permite rolagem suave vertical no smartphone */
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Na página de chat ativa, a tela se ajusta fluidamente à altura da viewport dinâmica */
+  body:has(.chat-container) {
     height: 100%;
-    overflow: hidden;
+    overflow: hidden !important;
   }
 
   .chat-container {
@@ -194,8 +203,9 @@
   .messages-area {
     flex: 1 1 auto !important;
     min-height: 0 !important;
-    overflow-y: auto !important;
+    overflow-y: auto !important; /* Rolagem livre e fluida para subir e descer */
     -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
     padding: 12px 10px !important;
     gap: 10px !important;
     background-color: var(--bg-page) !important;
@@ -264,19 +274,26 @@
   }
 
   #btn-enviar {
-    min-height: 42px !important;
-    height: 42px !important;
-    width: 42px !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    width: 44px !important;
     padding: 0 !important;
     border-radius: 50% !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     flex-shrink: 0 !important;
-    background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4) !important;
+    background: var(--glass-btn-bg) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    border: 1px solid var(--glass-btn-border) !important;
+    box-shadow: 0 4px 16px rgba(74, 202, 203, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
     cursor: pointer !important;
+    transition: transform 0.15s ease !important;
+  }
+
+  #btn-enviar:active {
+    transform: scale(0.92) !important;
   }
 
   #btn-enviar span.btn-text {

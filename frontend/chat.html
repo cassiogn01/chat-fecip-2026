@@ -32,7 +32,7 @@
     <!-- Área de Mensagens (T=7s, T=8s, T=9s, T=10s) -->
     <div id="mensagens-area" class="messages-area">
       <div class="msg-system-box">
-        <img src="/img/lock.gif" alt="Segurança" class="icon-animated-inline"> Conversa temporária iniciada. As mensagens não são salvas em nenhum lugar.
+        <img src="/img/message.gif" alt="Segurança" class="icon-animated-inline"> Conversa temporária iniciada. As mensagens não são salvas em nenhum lugar.
       </div>
     </div>
 
@@ -75,8 +75,8 @@
       window.location.href = '/';
     }
 
-    // Exibe meu nome e bandeira imediatamente no cabeçalho
-    document.getElementById('meu-info').innerHTML = Validacao.escaparHTML(meuNome) + ' ' + TradutorUI.obterBandeira(meuIdioma);
+    // Exibe meu nome, país e bandeira imediatamente no cabeçalho
+    document.getElementById('meu-info').innerHTML = Validacao.escaparHTML(meuNome) + ' ' + TradutorUI.obterPaisComBandeira(meuIdioma);
 
     const socket = inicializarSocket();
     const areaMensagens = document.getElementById('mensagens-area');
@@ -94,7 +94,7 @@
       }
 
       if (outro && outro.nome) {
-        document.getElementById('parceiro-info').innerHTML = Validacao.escaparHTML(outro.nome) + ' ' + TradutorUI.obterBandeira(outro.idioma);
+        document.getElementById('parceiro-info').innerHTML = Validacao.escaparHTML(outro.nome) + ' ' + TradutorUI.obterPaisComBandeira(outro.idioma);
       } else {
         document.getElementById('parceiro-info').textContent = 'Aguardando parceiro entrar...';
       }
