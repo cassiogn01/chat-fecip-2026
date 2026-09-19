@@ -32,7 +32,7 @@
     <!-- Área de Mensagens (T=7s, T=8s, T=9s, T=10s) -->
     <div id="mensagens-area" class="messages-area">
       <div class="msg-system-box">
-        🔒 Conversa temporária iniciada. As mensagens não são salvas em nenhum lugar.
+        <img src="/img/lock.gif" alt="Segurança" class="icon-animated-inline"> Conversa temporária iniciada. As mensagens não são salvas em nenhum lugar.
       </div>
     </div>
 
@@ -45,8 +45,9 @@
     <div class="chat-bottombar">
       <input type="text" id="input-mensagem" class="chat-input" placeholder="Digite no seu idioma e o parceiro lerá no dele..." maxlength="500" autocomplete="off" autofocus>
       <span id="contador-chars" class="char-limit">0/500</span>
-      <button id="btn-enviar" class="btn btn-primary" title="Enviar mensagem">
-        <span>Enviar</span>
+      <button id="btn-enviar" class="btn btn-primary" title="Enviar mensagem" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+        <img src="/img/send.gif" alt="Enviar" class="icon-animated-send">
+        <span class="btn-text">Enviar</span>
       </button>
     </div>
   </div>

@@ -273,21 +273,24 @@
     align-items: center !important;
     justify-content: center !important;
     flex-shrink: 0 !important;
-    background-color: var(--primary) !important;
-    border: none !important;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4) !important;
     cursor: pointer !important;
   }
 
-  #btn-enviar span {
-    display: none !important; /* Ícone limpo circular no celular */
+  #btn-enviar span.btn-text {
+    display: none !important; /* Oculta texto Enviar no mobile mantendo ícone */
   }
 
   #btn-enviar::after {
-    content: "➤" !important;
-    color: #ffffff !important;
-    font-size: 1.1rem !important;
-    line-height: 1 !important;
-    margin-left: 2px !important;
+    display: none !important;
+  }
+
+  #btn-enviar img.icon-animated-send {
+    width: 22px !important;
+    height: 22px !important;
+    margin: 0 !important;
   }
 
   .footer {
