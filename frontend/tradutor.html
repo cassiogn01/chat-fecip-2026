@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+  <title>Tradutor Direto Instantâneo — FECIP 2026</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/responsivo.css">
+</head>
+<body>
+  <!-- Barra de Navegação Coesa e Fluida -->
+  <header class="navbar">
+    <a href="/" class="brand">
+      <div class="brand-icon">
+        <img src="/img/chat.gif" alt="Chat" class="icon-animated">
+      </div>
+      <div>
+        <span class="brand-title">Chat Tradução</span>
+        <span class="brand-subtitle">FECIP 2026</span>
+      </div>
+    </a>
+
+    <!-- Segmented Navigation: Alternância Fluida entre Chat e Tradutor -->
+    <div class="nav-segmented">
+      <a href="/" class="nav-tab">
+        <img src="/img/chat.gif" alt="Chat" style="width: 16px; height: 16px; filter: invert(1) hue-rotate(180deg);">
+        <span>Chat 1x1</span>
+      </a>
+      <a href="/tradutor.html" class="nav-tab active">
+        <img src="/img/globe.gif" alt="Tradutor" style="width: 16px; height: 16px; filter: invert(1) hue-rotate(180deg);">
+        <span>Tradutor Direto</span>
+      </a>
+    </div>
+
+    <div class="nav-actions" id="nav-auth-area">
+      <!-- Injetado dinamicamente via JS (Login/Cadastro ou Perfil) -->
+    </div>
+  </header>
+
+  <!-- Layout Inspirado no Google Tradutor Dark com Glassmorphism e True Black -->
+  <main class="main-content" style="max-width: 1100px;">
+    <div class="gt-layout">
+      <!-- Barra Superior de Modos (Estilo Google Tradutor) -->
+      <div class="gt-mode-bar">
+        <div class="gt-pill">
+          <span>文A Texto</span>
+        </div>
+        <span style="font-size: 0.85rem; color: var(--text-subtle); margin-left: 8px;">
+          Tradução instantânea enquanto você digita
+        </span>
+      </div>
+
+      <!-- Container Principal com Painéis Lado a Lado (ou Empilhados no Smartphone) -->
+      <div class="gt-container">
+        <!-- Painel Esquerdo: Entrada de Texto -->
+        <div class="gt-box">
+          <div class="gt-box-header">
+            <select id="select-origem" class="gt-lang-select" title="Idioma de Origem">
+              <option value="pt-BR" selected>🇧🇷 Brasil — Português (pt-BR)</option>
+              <option value="en">🇺🇸 Estados Unidos — English (en)</option>
+              <option value="es">🇪🇸 Espanha — Español (es)</option>
+            </select>
+            <button id="btn-colar" class="gt-action-btn" title="Colar texto da área de transferência">
+              📋 <span>Colar</span>
+            </button>
+          </div>
+
+          <textarea id="input-origem" class="gt-textarea" placeholder="Digite ou cole qualquer texto aqui para traduzir..." maxlength="5000" autofocus></textarea>
+
+          <div class="gt-box-footer">
+            <button id="btn-limpar" class="gt-action-btn" title="Limpar texto" style="display: none;">
+              ✕ <span>Limpar</span>
+            </button>
+            <span id="char-counter" style="font-size: 0.78rem; color: var(--text-subtle); margin-left: auto;">
+              0 / 5000
+            </span>
+          </div>
+        </div>
+
+        <!-- Botão Central de Inverter Idiomas (⇄) -->
+        <div class="gt-swap-col">
+          <button id="btn-inverter" class="gt-btn-swap" title="Inverter idiomas de origem e destino">
+            ⇄
+          </button>
+        </div>
+
+        <!-- Painel Direito: Saída da Tradução Instantânea -->
+        <div class="gt-box">
+          <div class="gt-box-header">
+            <select id="select-destino" class="gt-lang-select" title="Idioma de Destino">
+              <option value="en" selected>🇺🇸 Estados Unidos — English (en)</option>
+              <option value="pt-BR">🇧🇷 Brasil — Português (pt-BR)</option>
+              <option value="es">🇪🇸 Espanha — Español (es)</option>
+            </select>
+            <div id="status-traducao" class="gt-status-indicator" style="display: none;">
+              <span class="status-dot"></span>
+              <span>Traduzindo...</span>
+            </div>
+          </div>
+
+          <div id="output-traducao" class="gt-output placeholder">Tradução</div>
+
+          <div class="gt-box-footer">
+            <div class="gt-actions-group">
+              <button id="btn-copiar" class="gt-action-btn" title="Copiar tradução para a área de transferência">
+                📑 <span>Copiar</span>
+              </button>
+            </div>
+            <span id="aviso-motor" style="font-size: 0.76rem; color: var(--text-subtle);">
+              Motor: LibreTranslate Local + AI
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    Chat com Tradução Simultânea — FECIP 2026 | Projeto de Cássio Roberto Monteiro Guimarães Natal
+  </footer>
+
+  <script src="/js/validacao.js"></script>
+  <script src="/js/tradutor.js"></script>
+  <script>
+    let usuarioAtual = null;
+
+    // Checa sessão do usuário registrado no menu superior
+    async function carregarSessao() {
+      try {
+        const res = await fetch('/api/auth/me');
+        const data = await res.json();
+        const navArea = document.getElementById('nav-auth-area');
+
+        if (data.autenticado && data.usuario) {
+          usuarioAtual = data.usuario;
+          navArea.innerHTML = `
+            <div class="user-tag">
+              <span>${usuarioAtual.nick}</span>
+              <span>${TradutorUI.obterPaisComBandeira(usuarioAtual.idioma_padrao)}</span>
+            </div>
+            <button id="btn-logout" class="nav-link" style="border:none; background:none; cursor:pointer;">Sair</button>
+          `;
+
+          document.getElementById('btn-logout').onclick = async () => {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.reload();
+          };
+        } else {
+          navArea.innerHTML = `
+            <a href="/login.html" class="nav-link">Entrar</a>
+            <a href="/cadastro.html" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.88rem;">+ Cadastro</a>
+          `;
+        }
+      } catch (err) {
+        console.error('Erro ao verificar sessão:', err);
+      }
+    }
+
+    carregarSessao();
+
+    // Elementos da Interface
+    const inputOrigem = document.getElementById('input-origem');
+    const outputTraducao = document.getElementById('output-traducao');
+    const selectOrigem = document.getElementById('select-origem');
+    const selectDestino = document.getElementById('select-destino');
+    const btnInverter = document.getElementById('btn-inverter');
+    const btnCopiar = document.getElementById('btn-copiar');
+    const btnColar = document.getElementById('btn-colar');
+    const btnLimpar = document.getElementById('btn-limpar');
+    const charCounter = document.getElementById('char-counter');
+    const statusTraducao = document.getElementById('status-traducao');
+    const avisoMotor = document.getElementById('aviso-motor');
+
+    let debounceTimer = null;
+    let abortController = null;
+
+    // Função de Tradução Instantânea
+    async function dispararTraducaoInstantanea() {
+      const texto = inputOrigem.value.trim();
+      const origem = selectOrigem.value;
+      const destino = selectDestino.value;
+
+      charCounter.textContent = `${inputOrigem.value.length} / 5000`;
+      btnLimpar.style.display = inputOrigem.value.length > 0 ? 'inline-flex' : 'none';
+
+      if (!texto) {
+        outputTraducao.textContent = 'Tradução';
+        outputTraducao.classList.add('placeholder');
+        statusTraducao.style.display = 'none';
+        return;
+      }
+
+      // Se ambos os idiomas forem idênticos, exibe diretamente
+      if (origem === destino) {
+        outputTraducao.textContent = texto;
+        outputTraducao.classList.remove('placeholder');
+        statusTraducao.style.display = 'none';
+        return;
+      }
+
+      statusTraducao.style.display = 'inline-flex';
+
+      if (abortController) {
+        abortController.abort();
+      }
+      abortController = new AbortController();
+
+      try {
+        const response = await fetch('/api/traduzir', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ texto, origem, destino }),
+          signal: abortController.signal
+        });
+
+        const data = await response.json();
+        statusTraducao.style.display = 'none';
+
+        if (data && data.texto) {
+          outputTraducao.textContent = data.texto;
+          outputTraducao.classList.remove('placeholder');
+
+          if (data.aviso) {
+            avisoMotor.textContent = `Aviso: ${data.aviso}`;
+            avisoMotor.style.color = '#f59e0b';
+          } else {
+            avisoMotor.textContent = 'Motor: LibreTranslate Local + AI';
+            avisoMotor.style.color = 'var(--text-subtle)';
+          }
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error('Erro na tradução instantânea:', err);
+          statusTraducao.style.display = 'none';
+        }
+      }
+    }
+
+    // Event Listener com Debounce Suave de 300ms
+    inputOrigem.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(dispararTraducaoInstantanea, 300);
+    });
+
+    // Inverter Idiomas
+    btnInverter.addEventListener('click', () => {
+      const tempLang = selectOrigem.value;
+      selectOrigem.value = selectDestino.value;
+      selectDestino.value = tempLang;
+
+      // Inverte também o conteúdo se houver tradução pronta
+      if (!outputTraducao.classList.contains('placeholder') && outputTraducao.textContent.trim()) {
+        inputOrigem.value = outputTraducao.textContent.trim();
+      }
+
+      dispararTraducaoInstantanea();
+    });
+
+    // Mudança de Idiomas nos Seletores
+    selectOrigem.addEventListener('change', dispararTraducaoInstantanea);
+    selectDestino.addEventListener('change', dispararTraducaoInstantanea);
+
+    // Botão Limpar
+    btnLimpar.addEventListener('click', () => {
+      inputOrigem.value = '';
+      inputOrigem.focus();
+      dispararTraducaoInstantanea();
+    });
+
+    // Botão Colar
+    btnColar.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          inputOrigem.value = text;
+          dispararTraducaoInstantanea();
+        }
+      } catch (e) {
+        inputOrigem.focus();
+        document.execCommand('paste');
+      }
+    });
+
+    // Botão Copiar Tradução
+    btnCopiar.addEventListener('click', () => {
+      if (outputTraducao.classList.contains('placeholder')) return;
+      const texto = outputTraducao.textContent;
+      if (!texto) return;
+
+      navigator.clipboard.writeText(texto).then(() => {
+        const originalText = btnCopiar.querySelector('span').textContent;
+        btnCopiar.querySelector('span').textContent = 'Copiado!';
+        btnCopiar.classList.add('active');
+        setTimeout(() => {
+          btnCopiar.querySelector('span').textContent = originalText;
+          btnCopiar.classList.remove('active');
+        }, 1800);
+      });
+    });
+  </script>
+</body>
+</html>

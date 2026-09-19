@@ -55,10 +55,13 @@ app.use(
 // Instância do Gerenciador de Salas em Memória (RAM)
 const gerenciadorSalas = new GerenciadorSalas();
 
+const traduzirRoutes = require('./routes/traduzir');
+
 // Rotas da API
 app.use('/api/auth', authRoutes);
 app.use('/api/amigos', amigosRoutes);
 app.use('/api/salas', salasRoutes(gerenciadorSalas));
+app.use('/api/traduzir', traduzirRoutes);
 
 // Servir arquivos estáticos do Frontend
 const frontendDir = path.join(__dirname, '..', 'frontend');

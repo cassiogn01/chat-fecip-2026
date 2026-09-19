@@ -25,9 +25,49 @@
   /* Barra de Navegação Mobile */
   .navbar {
     padding: 10px 14px;
-    height: 56px;
+    min-height: 56px;
+    height: auto;
     background: var(--bg-surface);
     border-bottom: 1px solid var(--border-subtle);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .nav-segmented {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    margin-top: 4px;
+  }
+
+  .nav-tab {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+    font-size: 0.82rem;
+    padding: 6px 10px;
+  }
+
+  /* Google Tradutor Dark Mobile */
+  .gt-container {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .gt-swap-col {
+    margin: -4px 0;
+  }
+
+  .gt-btn-swap {
+    transform: rotate(90deg);
+  }
+
+  .gt-btn-swap:hover {
+    transform: rotate(270deg) scale(1.08);
+  }
+
+  .gt-box {
+    min-height: 200px;
   }
 
   .brand-title {
