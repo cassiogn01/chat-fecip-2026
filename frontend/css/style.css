@@ -19,19 +19,19 @@
   --primary-border: rgba(74, 202, 203, 0.45);
   --primary-glow: 0 0 16px rgba(74, 202, 203, 0.35);
   
-  /* Cores Principais do Background solicitadas pelo usuário (Dark OLED) */
-  --bg-page: #101010;             /* Imagem 1: Cor primária de fundo */
-  --bg-surface: #1c1c1c;          /* Imagem 2: Cor secundária para cards e containers */
-  --bg-muted: #242424;            /* Elementos secundários / inputs / chips */
-  --bg-elevated: #2a2a2a;
+  /* Cores Principais do Background solicitadas pelo usuário (True Black #000000) */
+  --bg-page: #000000;             /* Imagem enviada: Preto absoluto / True Black #000000 */
+  --bg-surface: #0e0e0e;          /* Superfícies refinadas para alto contraste com #000000 */
+  --bg-muted: #181818;            /* Elementos secundários / inputs / chips */
+  --bg-elevated: #222222;
   
-  /* Efeito Glassmorphism para Tema Escuro */
-  --glass-bg: rgba(28, 28, 28, 0.72);
+  /* Efeito Glassmorphism para Tema Preto Puro */
+  --glass-bg: rgba(14, 14, 14, 0.78);
   --glass-border: rgba(255, 255, 255, 0.12);
   --glass-btn-bg: rgba(74, 202, 203, 0.18);
   --glass-btn-hover: rgba(74, 202, 203, 0.28);
   --glass-btn-border: rgba(74, 202, 203, 0.55);
-  --glass-blur: blur(14px);
+  --glass-blur: blur(16px);
   
   /* Textos de Alto Contraste */
   --text-main: #ffffff;           /* Letras brancas */
@@ -73,26 +73,26 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(16, 16, 16, 0.6);
+  background: rgba(0, 0, 0, 0.8);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(74, 202, 203, 0.45);
+  background: rgba(74, 202, 203, 0.5);
   border-radius: 999px;
-  border: 2px solid rgba(16, 16, 16, 0.8);
+  border: 2px solid #000000;
   transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary);
-  box-shadow: 0 0 10px rgba(74, 202, 203, 0.6);
+  box-shadow: 0 0 10px rgba(74, 202, 203, 0.7);
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(74, 202, 203, 0.5) rgba(16, 16, 16, 0.6);
+  scrollbar-color: rgba(74, 202, 203, 0.5) #000000;
 }
 
 body {
