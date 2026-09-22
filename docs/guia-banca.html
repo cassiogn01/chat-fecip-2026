@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chat FECIP 2026 — Guia da Banca</title>
+<style>
+@page{size:A4;margin:17mm}body{font-family:Arial,sans-serif;color:#172033;line-height:1.45;max-width:900px;margin:auto}h1{color:#123b72;font-size:30px;margin-bottom:4px}h2{color:#145da0;border-bottom:2px solid #dbeafe;padding-bottom:4px;margin-top:28px}h3{color:#2463a3}p,li{font-size:11.5pt}li{margin:4px 0}.cover{min-height:90vh;display:flex;flex-direction:column;justify-content:center;text-align:center}.cover h1{font-size:36px}.tag{display:inline-block;background:#e8f2ff;color:#145da0;padding:8px 14px;border-radius:20px;margin:12px}.box{background:#f4f7fb;border-left:5px solid #2474c6;padding:12px 16px;margin:14px 0}.warning{background:#fff8e6;border-left-color:#d38a00}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.card{border:1px solid #d7e0ea;border-radius:8px;padding:11px}.card strong{color:#123b72}code{background:#eef2f7;padding:2px 4px;border-radius:3px}pre{background:#111827;color:#e5e7eb;padding:12px;border-radius:7px;white-space:pre-wrap;font-size:9pt;overflow-wrap:anywhere}.small{font-size:9.5pt;color:#536174}.page-break{break-before:page}.flow{font-weight:bold;color:#145da0;text-align:center;padding:12px;background:#eef6ff}.piece{break-inside:avoid}.footer{margin-top:30px;font-size:9pt;color:#65758b;text-align:center}@media print{a{color:inherit;text-decoration:none}.cover{min-height:250mm}.page-break{break-before:page}}
+</style>
+</head>
+<body>
+<section class="cover">
+<h1>Chat com Tradução Simultânea</h1>
+<h2>FECIP 2026</h2>
+<div class="tag">Guia resumido para a banca</div>
+<p><strong>“Entra, conversa, traduz, tchau.”</strong></p>
+<p>Uma explicação simples do projeto, como se estivéssemos abrindo o capô de um carro e identificando cada peça.</p>
+<p class="small">Projeto de cassiogn01 · Repositório: chat-fecip-2026</p>
+</section>
+
+<h2>1. Explicação em 30 segundos</h2>
+<div class="box"><strong>O projeto é um chat individual temporário.</strong> Uma pessoa cria uma sala, recebe um link ou QR Code e compartilha com outra pessoa. Cada participante escolhe seu idioma. A mensagem é enviada em tempo real e traduzida para o idioma de quem vai recebê-la. A conversa não é gravada.</div>
+<p><strong>Exemplo:</strong> uma pessoa escreve em português; ela continua vendo português, enquanto o parceiro recebe inglês ou espanhol, conforme sua escolha.</p>
+
+<h2>2. O carro completo: visão do sistema</h2>
+<div class="flow">Navegador → servidor Node.js → sala em memória → tradutor → navegador do parceiro</div>
+<div class="grid">
+<div class="card"><strong>Parte visível</strong><br>HTML, CSS e JavaScript formam telas, botões, formulários e mensagens.</div>
+<div class="card"><strong>Motor</strong><br>Node.js executa o código do servidor e coordena as operações.</div>
+<div class="card"><strong>Câmbio em tempo real</strong><br>Socket.IO mantém o canal aberto para mensagens instantâneas.</div>
+<div class="card"><strong>Porta de serviço</strong><br>Express recebe requisições HTTP e disponibiliza APIs.</div>
+<div class="card"><strong>Porta-malas permanente</strong><br>SQLite guarda usuários, favoritos e tokens de recuperação.</div>
+<div class="card"><strong>GPS da tradução</strong><br>LibreTranslate converte o texto entre idiomas.</div>
+</div>
+
+<h2>3. Ferramentas: o que são e o que fazem</h2>
+<div class="piece"><h3>Node.js — o motor</h3><p>É o ambiente que executa JavaScript no computador/servidor, sem depender do navegador. Neste projeto, inicia o servidor, acessa o banco, gerencia salas e conversa com o tradutor.</p></div>
+<div class="piece"><h3>Express — o chassi e as estradas</h3><p>É uma biblioteca para criar servidor web. Organiza endereços como <code>/api/auth/login</code>, recebe dados de formulários e entrega os arquivos do frontend.</p></div>
+<div class="piece"><h3>Socket.IO — o rádio comunicador</h3><p>Permite comunicação nos dois sentidos em tempo real. Eventos como <code>enviar_mensagem</code>, <code>digitando</code> e <code>participante_saiu</code> chegam sem recarregar a página. Também tenta reconectar se a internet oscilar.</p></div>
+<div class="piece"><h3>HTML — a carroceria</h3><p>Define a estrutura: campos, botões, cartões, tela da sala, login, cadastro e chat.</p></div>
+<div class="piece"><h3>CSS — pintura e ergonomia</h3><p>Define cores, espaçamentos, tamanhos, responsividade e adaptação para celular.</p></div>
+<div class="piece"><h3>JavaScript do navegador — painel do motorista</h3><p>Reage aos cliques, valida campos, abre o Socket.IO, envia mensagens e atualiza a tela quando chega uma resposta.</p></div>
+<div class="piece"><h3>SQLite — gaveta de documentos</h3><p>É um banco leve guardado em arquivo. Salva contas, e-mails, hashes das senhas, idiomas, favoritos e tokens de redefinição. Não salva o histórico do chat.</p></div>
+<div class="piece"><h3>bcryptjs — cofre das senhas</h3><p>Transforma a senha em um hash. O sistema compara a senha informada com o hash, sem guardar a senha original.</p></div>
+<div class="piece"><h3>express-session — pulseira de identificação</h3><p>Usa uma sessão para lembrar que um usuário fez login. Assim, as rotas de amigos podem permitir ou negar acesso.</p></div>
+<div class="piece"><h3>LibreTranslate — tradutor principal</h3><p>É executado localmente com Docker e traduz português, inglês e espanhol. Se estiver indisponível, o projeto tenta alternativas e, no pior caso, entrega o original com um aviso.</p></div>
+<div class="piece"><h3>Docker Compose — caixa isolada</h3><p>Inicia o LibreTranslate em um container, uma espécie de ambiente separado que facilita instalar e executar o serviço.</p></div>
+<div class="piece"><h3>Nodemailer — serviço de correio</h3><p>Envia o e-mail com o link para redefinir senha.</p></div>
+<div class="piece"><h3>QR Code — convite visual</h3><p>Transforma o link da sala em um código que o celular consegue ler com a câmera.</p></div>
+
+<h2>4. Abrindo o capô: pastas mais importantes</h2>
+<pre>backend/server.js                 motor principal
+backend/db.js                     banco e consultas
+backend/routes/auth.js             cadastro, login e reset
+backend/routes/amigos.js           favoritos de usuários
+backend/routes/salas.js             consulta da sala
+backend/routes/traduzir.js          tradutor direto
+backend/socket-handlers/salas.js    criação e encerramento de salas
+backend/socket-handlers/mensagens.js mensagens e tradução
+backend/socket-handlers/digitacao.js indicador de digitação
+backend/utils/traducao.js           conexão com tradutores
+backend/utils/qrcode.js             geração do QR Code
+frontend/index.html                 criação da sala
+frontend/sala-entrada.html          entrada pelo convite
+frontend/chat.html                  tela da conversa
+frontend/js/socket-client.js        conexão do navegador</pre>
+
+<h2>5. Funcionamento passo a passo</h2>
+<h3>5.1 Criar sala</h3><ol><li>O usuário informa nome e idioma.</li><li>O navegador emite <code>criar_sala</code>.</li><li>O servidor cria um UUID, como um número de chassi único.</li><li>A sala fica em um <code>Map</code> na memória.</li><li>O sistema gera link e QR Code.</li></ol>
+<h3>5.2 Entrar pelo convite</h3><ol><li>O convidado abre o link.</li><li>A página consulta se a sala existe.</li><li>Ele informa nome e idioma.</li><li>O servidor associa seu socket à sala.</li><li>O estado muda de <code>aguardando</code> para <code>ativo</code>.</li></ol>
+<h3>5.3 Enviar mensagem</h3><ol><li>O texto sai do navegador pelo Socket.IO.</li><li>O servidor aplica limite de frequência e tamanho.</li><li>O remetente recebe a versão original.</li><li>O texto é enviado ao tradutor com origem e destino.</li><li>O parceiro recebe a tradução.</li></ol>
+<h3>5.4 Sair ou desconectar</h3><p>O botão “Sair da Sala” encerra imediatamente. Em uma queda temporária, o servidor aguarda até 120 segundos para uma reconexão. Depois, remove a sala da memória.</p>
+
+<div class="page-break"></div>
+<h2>6. Códigos principais, traduzidos para linguagem simples</h2>
+<h3>6.1 Ligando o servidor — <code>backend/server.js</code></h3>
+<pre>const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+app.use(express.json());
+app.use(express.static(frontendDir));
+
+server.listen(PORT, () =&gt; {
+  console.log('Servidor iniciado');
+});</pre>
+<p><strong>Leitura:</strong> cria o servidor, permite receber JSON, disponibiliza o frontend e abre uma porta para os navegadores se conectarem.</p>
+
+<h3>6.2 Criando uma sala</h3>
+<pre>const salaId = uuidv4();
+const sala = {
+  id: salaId,
+  status: 'aguardando',
+  criador: { socketId: socket.id, nome, idioma },
+  convidado: null
+};
+
+this.salas.set(salaId, sala);
+socket.join(salaId);</pre>
+<p><strong>Leitura:</strong> cria uma identidade única, registra o criador, deixa a vaga do convidado livre e coloca o socket na sala.</p>
+
+<h3>6.3 Enviando e traduzindo</h3>
+<pre>const traducao = await traduzirTexto(
+  texto,
+  remetente.idioma,
+  destinatario.idioma
+);
+
+socket.emit('mensagem_recebida', {
+  lado: 'me', texto: textoOriginal
+});
+
+io.to(destinatario.socketId).emit('mensagem_recebida', {
+  lado: 'other', texto: traducao.texto
+});</pre>
+<p><strong>Leitura:</strong> a mensagem original vai para quem escreveu; uma cópia traduzida vai para o parceiro. Esse é o coração do projeto.</p>
+
+<h3>6.4 Escolhendo o idioma</h3>
+<pre>if (src === tgt) {
+  return { texto, traduzido: false };
+}
+
+fetch('/translate', {
+  method: 'POST',
+  body: JSON.stringify({
+    q: texto, source: src, target: tgt
+  })
+});</pre>
+<p><strong>Leitura:</strong> se os dois idiomas forem iguais, economiza uma chamada. Se forem diferentes, envia o texto e os idiomas para o tradutor.</p>
+
+<h3>6.5 Salvando usuário com segurança</h3>
+<pre>const senhaHash = await bcrypt.hash(senha, 10);
+db.criarUsuario.run(
+  id, nick, email, senhaHash, idioma, '[]'
+);</pre>
+<p><strong>Leitura:</strong> a senha é transformada antes de ser salva. Se alguém visse o banco, não encontraria a senha original.</p>
+
+<h3>6.6 Evitando código malicioso</h3>
+<pre>function escaparHTML(texto) {
+  return texto
+    .replace(/&amp;/g, '&amp;amp;')
+    .replace(/&lt;/g, '&amp;lt;')
+    .replace(/&gt;/g, '&amp;gt;');
+}</pre>
+<p><strong>Leitura:</strong> símbolos que poderiam virar HTML ou JavaScript são convertidos em texto. Assim, uma mensagem não executa um script no navegador.</p>
+
+<h3>6.7 Reconexão automática</h3>
+<pre>const socket = io('/', {
+  reconnection: true,
+  reconnectionAttempts: 10,
+  timeout: 10000
+});</pre>
+<p><strong>Leitura:</strong> o navegador tenta reabrir a comunicação se houver uma queda breve.</p>
+
+<h2>7. Segurança e qualidade</h2>
+<ul><li>Senhas protegidas com bcrypt.</li><li>Consultas preparadas no SQLite.</li><li>Validação de nome, e-mail, idioma e tamanho da mensagem.</li><li>Limite de uma mensagem a cada 500 ms.</li><li>Escape de HTML contra XSS.</li><li>Tokens de recuperação expiram em uma hora.</li><li>Fallback de tradução mantém a conversa funcionando.</li><li>Testes verificam banco, tradução, QR Code, salas e autenticação.</li></ul>
+<div class="box warning"><strong>Explicação honesta:</strong> a solução está adequada para a feira e demonstra os conceitos. Para produção em grande escala, seriam necessários HTTPS obrigatório, CORS restrito, armazenamento de sessão externo, proteção contra CSRF, limite de tentativas de login e monitoramento.</div>
+
+<h2>8. Perguntas prováveis da banca</h2>
+<p><strong>As mensagens são armazenadas?</strong><br>Não. Elas são transmitidas em tempo real. A sala fica na memória e é apagada ao terminar.</p>
+<p><strong>Por que usar Socket.IO?</strong><br>Porque o chat precisa trocar dados imediatamente, sem recarregar a página.</p>
+<p><strong>E se a tradução falhar?</strong><br>O sistema tenta alternativas. Se todas falharem, mostra a mensagem original e um aviso.</p>
+<p><strong>O convidado precisa se cadastrar?</strong><br>Não. O cadastro é opcional; ele pode entrar apenas com nome e idioma.</p>
+<p><strong>O que fica no banco?</strong><br>Usuários, senhas protegidas, idiomas, favoritos e tokens de reset. O histórico do chat não fica.</p>
+<p><strong>Qual é a ideia principal?</strong><br>Permitir que duas pessoas conversem mesmo sem dominar o mesmo idioma.</p>
+
+<h2>9. Encerramento para falar na banca</h2>
+<div class="box"><strong>“O projeto funciona como um carro completo: o frontend é a parte que o usuário vê; o Node.js e o Express são o motor e as estradas; o Socket.IO é o rádio que mantém a conversa em tempo real; o SQLite guarda os dados de conta; e o LibreTranslate é o tradutor. Juntando essas peças, criamos uma sala temporária em que cada pessoa lê a mensagem no idioma que escolheu.”</strong></div>
+<div class="footer">Chat com Tradução Simultânea — FECIP 2026 · Guia preparado para apresentação</div>
+</body>
+</html>
